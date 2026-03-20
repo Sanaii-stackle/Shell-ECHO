@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Shell ECHO — Technical Process</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { background: #080808; font-family: 'Trebuchet MS', sans-serif; color: #e0e0e0; }
+    ::-webkit-scrollbar { display: none; }
+    button { font-family: 'Trebuchet MS', sans-serif; cursor: pointer; }
+    .pill { display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:30px; white-space:nowrap; flex-shrink:0; cursor:pointer; transition:all 0.2s; }
+    .card { border-radius:20px; padding:24px 20px; transition:all 0.3s ease; user-select:none; }
+    .stat-box { border-radius:10px; padding:10px 6px; text-align:center; }
+    .tab-btn { flex:1; padding:12px 4px; background:none; border:none; border-bottom:2px solid transparent; font-size:11px; cursor:pointer; transition:all 0.2s; }
+    .hydro-card { border-radius:14px; padding:20px; margin-bottom:12px; }
+    .stat-row { border-radius:12px; padding:14px 16px; margin-bottom:8px; }
+    .win-badge { border-radius:6px; padding:6px 10px; text-align:center; font-size:11px; font-weight:bold; }
+    .dot { height:6px; border-radius:3px; cursor:pointer; transition:all 0.3s ease; }
+    .nav-btn { border-radius:8px; padding:10px 16px; font-size:12px; font-weight:bold; border:none; }
+  </style>
+</head>
+<body>
+<div id="app" style="min-height:100vh; max-width:600px; margin:0 auto;"></div>
+
+<script>
+const YELLOW = "#FBCE07";
+const stages = [
+  { id:1, emoji:"🗑️", title:"Waste Collection", subtitle:"Fuel cities pay Shell to collect", color:"#1a1a1a", glow:"#888888",
+    stats:[{l:"Daily Intake",v:"500 tons"},{l:"Collection Fee",v:"$50/ton"},{l:"Annual Revenue",v:"$9.1M"}],
+    detail:"Eldoria's municipalities deliver 500 tons of waste daily. Shell gets paid $50 per ton to collect it — generating $9.1M per year before a single car charges. No other energy company gets paid for its own fuel." },
+  { id:2, emoji:"🔥", title:"Combustion Furnace", subtitle:"850–1000°C controlled burn", color:"#3a0a00", glow:"#ff4400",
+    stats:[{l:"Temperature",v:"1000°C"},{l:"Capacity",v:"500t/day"},{l:"Capture Points",v:"3 stages"}],
+    detail:"Waste burns at 850–1000°C in a sealed combustion chamber. Unlike competitors who capture heat once and waste the rest, Shell ECHO captures energy at three simultaneous points — furnace walls, exhaust gases, and the cooling system." },
+  { id:3, emoji:"⚗️", title:"Shell Thermal Capture", subtitle:"Shell's own fluid — 80% efficiency", color:"#2a2000", glow:"#FBCE07",
+    stats:[{l:"Efficiency",v:"Up to 80%"},{l:"vs Standard",v:"20–25%"},{l:"Cost/MWh",v:"$10–30"}],
+    detail:"Shell Thermal Fluid — manufactured by Shell Lubricants — lines furnace walls, intercepts exhaust gases at 300–400°C, and captures cooling heat. Three stages running simultaneously. Competitors throw away 75% of this energy. Shell captures it." },
+  { id:4, emoji:"⚡", title:"Electricity Generated", subtitle:"83% cheaper than any competitor", color:"#001a3a", glow:"#4488ff",
+    stats:[{l:"Annual Output",v:"250 GWh"},{l:"Cost/MWh",v:"$10–30"},{l:"vs Grid",v:"$120–180"}],
+    detail:"Multiple turbines driven by Shell Thermal Fluid produce 200–250 GWh per year — enough to power the entire Eldoria charging network at 83% lower cost than any grid-dependent competitor." },
+  { id:5, emoji:"♻️", title:"CO₂ Closed Loop", subtitle:"Emissions become revenue", color:"#001a18", glow:"#00ccaa",
+    stats:[{l:"CO₂ Captured",v:"85–95%"},{l:"Credits/year",v:"$5–12M"},{l:"Crop Yield+",v:"30%"}],
+    detail:"Amine scrubbing captures 85–95% of CO₂ before emission. That CO₂ feeds algae tanks producing biofuel, enriches greenhouses boosting crop yields 30%, and remaining CO₂ is sold as carbon credits worth $5–12M annually.",
+    loop:[{icon:"🌿",label:"Algae Biofuel",desc:"Powers Shell fleet",color:"#00ccaa"},{icon:"🌾",label:"Greenhouse CO₂",desc:"Crops +30%",color:"#44cc77"},{icon:"💰",label:"Carbon Credits",desc:"$5–12M/year",color:"#FBCE07"},{icon:"🔄",label:"Solvent Loop",desc:"Zero waste",color:"#4488ff"}] },
+  { id:6, emoji:"🏔️", title:"Pumped Hydro Storage", subtitle:"Profit from gravity itself", color:"#001528", glow:"#0099dd",
+    stats:[{l:"Store at",v:"$10–20/MWh"},{l:"Sell at",v:"$80–150/MWh"},{l:"Profit Spread",v:"$60–130"}],
+    detail:"Surplus overnight electricity pumps water uphill into mountain reservoirs. At morning peak demand it is released downhill through turbines in under 60 seconds — generating a $60–130 profit spread per MWh from gravity alone." },
+  { id:7, emoji:"🚗", title:"EV Charging Network", subtitle:"Fastest. Cheapest. Nowhere else.", color:"#001a0a", glow:"#44cc77",
+    stats:[{l:"Charge Time",v:"9–12 min"},{l:"Price",v:"$8–15"},{l:"vs IONITY",v:"$25–40"}],
+    detail:"350kW ultra-rapid chargers power EVs from 10% to 80% in 9–12 minutes at $8–15 per session. Same speed as the world's most expensive chargers — at half the price. Powered entirely by Eldoria's own waste." }
+];
+
+const statsData = [
+  {label:"Electricity Cost", echo:"$10–30/MWh", comp:"$120–180/MWh", win:"83% cheaper", color:"#44cc77"},
+  {label:"Fuel Cost", echo:"$0 — paid to collect", comp:"Market rate", win:"Free fuel", color:"#FBCE07"},
+  {label:"Charge Time 10–80%", echo:"9–12 minutes", comp:"25–35 minutes", win:"3x faster", color:"#4488ff"},
+  {label:"Price Per Charge", echo:"$8–15", comp:"$25–40", win:"50% cheaper", color:"#00ccaa"},
+  {label:"Profit Margin", echo:"75–85%", comp:"8–15%", win:"7x higher", color:"#ff6600"},
+  {label:"Grid Dependency", echo:"Zero", comp:"100%", win:"Full independence", color:"#44cc77"},
+  {label:"Carbon Position", echo:"Earns credits", comp:"Pays taxes", win:"Complete reversal", color:"#00ccaa"},
+  {label:"Energy Efficiency", echo:"Up to 80%", comp:"20–25%", win:"4x more efficient", color:"#FBCE07"}
+];
+
+let state = { active: 1, tab: "flow", tick: 0, animating: false };
+
+function setState(updates) {
+  Object.assign(state, updates);
+  render();
+}
+
+setInterval(() => setState({ tick: state.tick + 1 }), 1500);
+
+let startX = 0;
+
+function render() {
+  const s = stages.find(x => x.id === state.active);
+  const app = document.getElementById("app");
+
+  app.innerHTML = `
+    <!-- HEADER -->
+    <div style="background:linear-gradient(135deg,#111 0%,#1a1a00 100%);border-bottom:3px solid ${YELLOW};padding:14px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:34px;height:34px;background:${YELLOW};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;color:#000;">⚡</div>
+        <div>
+          <div style="font-size:8px;letter-spacing:3px;color:${YELLOW};text-transform:uppercase;">Shell ECHO</div>
+          <div style="font-size:13px;font-weight:bold;color:#fff;">Technical Process</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:5px;">
+        ${["E","C","H","O"].map((l,i) => `<div style="width:28px;height:28px;background:${i===state.tick%4?YELLOW:"#1a1a1a"};border:1px solid ${i===state.tick%4?YELLOW:"#333"};border-radius:5px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:11px;color:${i===state.tick%4?"#000":"#555"};transition:all 0.5s;">${l}</div>`).join("")}
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div style="display:flex;background:#111;border-bottom:1px solid #1e1e1e;position:sticky;top:65px;z-index:99;">
+      ${[["flow","⚡ System Flow"],["hydro","🏔️ Hydro Storage"],["stats","📊 Key Stats"]].map(([k,lbl]) => `
+        <button class="tab-btn" onclick="setState({tab:'${k}'})" style="color:${state.tab===k?YELLOW:"#555"};border-bottom:2px solid ${state.tab===k?YELLOW:"transparent"};font-weight:${state.tab===k?"bold":"normal"};">${lbl}</button>
+      `).join("")}
+    </div>
+
+    ${state.tab === "flow" ? renderFlow(s) : ""}
+    ${state.tab === "hydro" ? renderHydro() : ""}
+    ${state.tab === "stats" ? renderStats() : ""}
+  `;
+
+  // Attach swipe
+  const card = document.getElementById("swipe-card");
+  if (card) {
+    card.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
+    card.addEventListener("touchend", e => {
+      const diff = startX - e.changedTouches[0].clientX;
+      if (diff > 50 && state.active < stages.length) setState({ active: state.active + 1 });
+      if (diff < -50 && state.active > 1) setState({ active: state.active - 1 });
+    });
+  }
+}
+
+function renderFlow(s) {
+  return `
+    <div style="padding:16px;">
+      <!-- Pills -->
+      <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:16px;-webkit-overflow-scrolling:touch;">
+        ${stages.map(st => `
+          <div class="pill" onclick="setState({active:${st.id}})"
+            style="border:1px solid ${state.active===st.id?st.glow:"#1e1e1e"};background:${state.active===st.id?st.color:"#0f0f0f"};box-shadow:${state.active===st.id?`0 0 10px ${st.glow}33`:"none"};">
+            <span style="font-size:12px;">${st.emoji}</span>
+            <span style="font-size:10px;font-weight:bold;color:${state.active===st.id?st.glow:"#555"};">${st.id}. ${st.title}</span>
+          </div>
+        `).join("")}
+      </div>
+
+      <!-- Card -->
+      <div id="swipe-card" class="card" style="background:${s.color};border:2px solid ${s.glow};box-shadow:0 0 40px ${s.glow}22;opacity:${state.animating?0:1};">
+        <div style="text-align:center;font-size:9px;color:#333;margin-bottom:12px;letter-spacing:2px;">← SWIPE TO NAVIGATE →</div>
+        <div style="text-align:center;margin-bottom:16px;">
+          <div style="font-size:52px;filter:drop-shadow(0 0 16px ${s.glow});margin-bottom:8px;">${s.emoji}</div>
+          <div style="font-size:9px;color:${s.glow};letter-spacing:3px;margin-bottom:4px;">STAGE ${s.id} OF ${stages.length}</div>
+          <div style="font-size:20px;font-weight:bold;color:#fff;margin-bottom:3px;">${s.title}</div>
+          <div style="font-size:12px;color:#666;">${s.subtitle}</div>
+        </div>
+
+        <!-- Progress -->
+        <div style="height:3px;background:#1a1a1a;border-radius:2px;margin-bottom:16px;overflow:hidden;">
+          <div style="height:100%;width:${(s.id/stages.length)*100}%;background:${s.glow};border-radius:2px;transition:width 0.4s;"></div>
+        </div>
+
+        <!-- Stats -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">
+          ${s.stats.map(st => `
+            <div class="stat-box" style="background:rgba(0,0,0,0.4);border:1px solid ${s.glow}33;">
+              <div style="font-size:15px;font-weight:bold;color:${s.glow};">${st.v}</div>
+              <div style="font-size:9px;color:#555;margin-top:2px;">${st.l.toUpperCase()}</div>
+            </div>
+          `).join("")}
+        </div>
+
+        <!-- Detail -->
+        <div style="background:rgba(0,0,0,0.4);border-radius:10px;padding:14px 16px;font-size:13px;color:#bbb;line-height:1.8;text-align:center;margin-bottom:${s.loop?"14px":"0"};">
+          ${s.detail}
+        </div>
+
+        ${s.loop ? `
+          <div style="margin-top:4px;">
+            <div style="font-size:9px;letter-spacing:2px;color:#00ccaa;margin-bottom:8px;text-align:center;">CLOSED LOOP OUTPUTS</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              ${s.loop.map(item => `
+                <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(0,0,0,0.3);border-radius:8px;border:1px solid ${item.color}22;">
+                  <span style="font-size:18px;">${item.icon}</span>
+                  <div>
+                    <div style="font-size:10px;color:${item.color};font-weight:bold;">${item.label}</div>
+                    <div style="font-size:9px;color:#555;">${item.desc}</div>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        ` : ""}
+
+        <!-- Navigation -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;">
+          <button class="nav-btn" onclick="if(${state.active}>1)setState({active:${state.active}-1})"
+            style="background:rgba(255,255,255,0.05);border:1px solid ${state.active>1?s.glow+"44":"#1a1a1a"};color:${state.active>1?"#fff":"#333"};">← Prev</button>
+          <div style="display:flex;gap:5px;">
+            ${stages.map(st => `<div class="dot" onclick="setState({active:${st.id}})" style="width:${state.active===st.id?18:6}px;background:${state.active===st.id?s.glow:"#2a2a2a"};"></div>`).join("")}
+          </div>
+          <button class="nav-btn" onclick="if(${state.active}<${stages.length})setState({active:${state.active}+1})"
+            style="background:${state.active<stages.length?s.glow:"rgba(255,255,255,0.05)"};color:${state.active<stages.length?"#000":"#333"};">Next →</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderHydro() {
+  const items = [
+    {icon:"🌙",title:"OVERNIGHT",color:YELLOW,value:"$10–20/MWh",sub:"Stored from own plant",desc:"Surplus electricity from the waste plant pumps water uphill into mountain reservoirs while demand is low and electricity is cheap.",tag:"💧 Water pumped uphill using surplus power"},
+    {icon:"🏔️",title:"RESERVOIR",color:"#0099dd",value:"70–85%",sub:"Round-trip efficiency",desc:"Water sits in the mountain reservoir storing energy as gravity. Ready to release in under 60 seconds. Lifespan of 50–100 years. 95% of all global grid storage uses this technology.",tag:"⚡ Responds in under 60 seconds"},
+    {icon:"☀️",title:"MORNING PEAK",color:"#44cc77",value:"$80–150/MWh",sub:"Released at peak demand",desc:"When thousands of Eldorians plug in their EVs every morning, stored water releases downhill through turbines generating electricity at premium peak prices.",tag:"💰 $60–130 profit spread per MWh"}
+  ];
+  return `
+    <div style="padding:16px;">
+      <div style="font-size:10px;letter-spacing:3px;color:#444;margin-bottom:16px;text-align:center;text-transform:uppercase;">Buy Low — Store — Sell High</div>
+      ${items.map(item => `
+        <div class="hydro-card" style="background:#0f0f0f;border:1px solid ${item.color}33;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+            <div style="font-size:32px;">${item.icon}</div>
+            <div>
+              <div style="font-size:10px;color:${item.color};letter-spacing:2px;font-weight:bold;">${item.title}</div>
+              <div style="font-size:22px;font-weight:bold;color:#fff;">${item.value}</div>
+              <div style="font-size:10px;color:#444;">${item.sub}</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:#888;line-height:1.7;margin-bottom:10px;">${item.desc}</div>
+          <div style="background:${item.color}11;border:1px solid ${item.color}33;border-radius:6px;padding:8px 12px;font-size:11px;color:${item.color};">${item.tag}</div>
+        </div>
+      `).join("")}
+      <div style="background:#0f0f0f;border:1px solid #1e1e1e;border-radius:14px;padding:20px;">
+        <div style="font-size:10px;letter-spacing:2px;color:#444;margin-bottom:14px;text-align:center;">THE PROFIT SPREAD</div>
+        <div style="display:flex;align-items:center;justify-content:space-around;">
+          <div style="text-align:center;">
+            <div style="font-size:11px;color:#555;margin-bottom:4px;">BUY AT</div>
+            <div style="font-size:22px;font-weight:bold;color:${YELLOW};">$10–20</div>
+            <div style="font-size:9px;color:#444;">per MWh overnight</div>
+          </div>
+          <div style="font-size:22px;color:#44cc77;">→</div>
+          <div style="text-align:center;">
+            <div style="font-size:11px;color:#555;margin-bottom:4px;">SELL AT</div>
+            <div style="font-size:22px;font-weight:bold;color:#44cc77;">$80–150</div>
+            <div style="font-size:9px;color:#444;">per MWh at peak</div>
+          </div>
+          <div style="font-size:22px;color:#44cc77;">=</div>
+          <div style="text-align:center;background:#001a0a;border-radius:10px;padding:10px 8px;border:1px solid #003300;">
+            <div style="font-size:11px;color:#555;margin-bottom:4px;">PROFIT</div>
+            <div style="font-size:22px;font-weight:bold;color:#44cc77;">$60–130</div>
+            <div style="font-size:9px;color:#44cc77;">per MWh</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderStats() {
+  return `
+    <div style="padding:16px;">
+      <div style="font-size:10px;letter-spacing:3px;color:#444;margin-bottom:16px;text-align:center;text-transform:uppercase;">Shell ECHO vs The Competition</div>
+      ${statsData.map(row => `
+        <div class="stat-row" style="background:#0f0f0f;border:1px solid #1e1e1e;">
+          <div style="font-size:10px;color:#555;letter-spacing:1px;margin-bottom:8px;">${row.label.toUpperCase()}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+            <div style="background:#001a0a;border:1px solid #003300;border-radius:8px;padding:8px 10px;text-align:center;">
+              <div style="font-size:9px;color:#44cc77;margin-bottom:3px;">SHELL ECHO</div>
+              <div style="font-size:13px;font-weight:bold;color:#fff;">${row.echo}</div>
+            </div>
+            <div style="background:#1a0a0a;border:1px solid #330000;border-radius:8px;padding:8px 10px;text-align:center;">
+              <div style="font-size:9px;color:#cc4444;margin-bottom:3px;">COMPETITORS</div>
+              <div style="font-size:13px;font-weight:bold;color:#888;">${row.comp}</div>
+            </div>
+          </div>
+          <div class="win-badge" style="background:${row.color}11;border:1px solid ${row.color}33;color:${row.color};">✓ ${row.win}</div>
+        </div>
+      `).join("")}
+      <div style="margin-top:8px;font-size:9px;color:#2a2a2a;text-align:center;">Sources: U.S. DOE · IHA · Shell Thermal Fluid · IEA Global EV Outlook 2024</div>
+    </div>
+  `;
+}
+
+render();
+</script>
+</body>
+</html>
