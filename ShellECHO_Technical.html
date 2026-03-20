@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Shell ECHO — Technical Process</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #080808; font-family: 'Trebuchet MS', sans-serif; color: #e0e0e0; }
+    ::-webkit-scrollbar { display: none; }
+    button { font-family: 'Trebuchet MS', sans-serif; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const SHELL_YELLOW = "#FBCE07";
+
+const stages = [
+  {
+    id: 1, emoji: "🗑️", title: "Waste Collection",
+    subtitle: "Fuel cities pay Shell to collect",
+    color: "#1a1a1a", glow: "#888888",
+    stats: [{ label: "Daily Intake", value: "500 tons" }, { label: "Collection Fee", value: "$50/ton" }, { label: "Annual Revenue", value: "$9.1M" }],
+    detail: "Eldoria's municipalities deliver 500 tons of waste daily. Shell gets paid $50 per ton to collect it — generating $9.1M per year before a single car charges. No other energy company gets paid for its own fuel.",
+  },
+  {
+    id: 2, emoji: "🔥", title: "Combustion Furnace",
+    subtitle: "850–1000°C controlled burn",
+    color: "#3a0a00", glow: "#ff4400",
+    stats: [{ label: "Temperature", value: "1000°C" }, { label: "Capacity", value: "500t/day" }, { label: "Capture Points", value: "3 stages" }],
+    detail: "Waste burns at 850–1000°C in a sealed combustion chamber. Unlike competitors who capture heat once and waste the rest, Shell ECHO captures energy at three simultaneous points — furnace walls, exhaust gases, and the cooling system.",
+  },
+  {
+    id: 3, emoji: "⚗️", title: "Shell Thermal Capture",
+    subtitle: "Shell's own fluid — 80% efficiency",
+    color: "#2a2000", glow: "#FBCE07",
+    stats: [{ label: "Efficiency", value: "Up to 80%" }, { label: "vs Standard", value: "20–25%" }, { label: "Cost/MWh", value: "$10–30" }],
+    detail: "Shell Thermal Fluid — manufactured by Shell Lubricants — lines furnace walls, intercepts exhaust gases at 300–400°C, and captures cooling heat. Three stages running simultaneously. Competitors throw away 75% of this energy. Shell captures it.",
+  },
+  {
+    id: 4, emoji: "⚡", title: "Electricity Generated",
+    subtitle: "83% cheaper than any competitor",
+    color: "#001a3a", glow: "#4488ff",
+    stats: [{ label: "Annual Output", value: "250 GWh" }, { label: "Cost/MWh", value: "$10–30" }, { label: "vs Grid", value: "$120–180" }],
+    detail: "Multiple turbines driven by Shell Thermal Fluid produce 200–250 GWh per year — enough to power the entire Eldoria charging network at 83% lower cost than any grid-dependent competitor.",
+  },
+  {
+    id: 5, emoji: "♻️", title: "CO₂ Closed Loop",
+    subtitle: "Emissions become revenue",
+    color: "#001a18", glow: "#00ccaa",
+    stats: [{ label: "CO₂ Captured", value: "85–95%" }, { label: "Credits/year", value: "$5–12M" }, { label: "Crop Yield+", value: "30%" }],
+    detail: "Amine scrubbing captures 85–95% of CO₂ before emission. That CO₂ feeds algae tanks producing biofuel, enriches greenhouses boosting crop yields 30%, and remaining CO₂ is sold as carbon credits worth $5–12M annually.",
+    loop: [
+      { icon: "🌿", label: "Algae Biofuel", desc: "Powers Shell fleet", color: "#00ccaa" },
+      { icon: "🌾", label: "Greenhouse CO₂", desc: "Crops +30%", color: "#44cc77" },
+      { icon: "💰", label: "Carbon Credits", desc: "$5–12M/year", color: "#FBCE07" },
+      { icon: "🔄", label: "Solvent Loop", desc: "Zero waste", color: "#4488ff" },
+    ],
+  },
+  {
+    id: 6, emoji: "🏔️", title: "Pumped Hydro Storage",
+    subtitle: "Profit from gravity itself",
+    color: "#001528", glow: "#0099dd",
+    stats: [{ label: "Store at", value: "$10–20/MWh" }, { label: "Sell at", value: "$80–150/MWh" }, { label: "Profit Spread", value: "$60–130" }],
+    detail: "Surplus overnight electricity pumps water uphill into mountain reservoirs. At morning peak demand it is released downhill through turbines in under 60 seconds — generating a $60–130 profit spread per MWh from gravity alone.",
+  },
+  {
+    id: 7, emoji: "🚗", title: "EV Charging Network",
+    subtitle: "Fastest. Cheapest. Nowhere else.",
+    color: "#001a0a", glow: "#44cc77",
+    stats: [{ label: "Charge Time", value: "9–12 min" }, { label: "Price", value: "$8–15" }, { label: "vs IONITY", value: "$25–40" }],
+    detail: "350kW ultra-rapid chargers power EVs from 10% to 80% in 9–12 minutes at $8–15 per session. Same speed as the world's most expensive chargers — at half the price. Powered entirely by Eldoria's own waste.",
+  },
+];
+
+function App() {
+  const [active, setActive] = React.useState(1);
+  const [animating, setAnimating] = React.useState(false);
+  const [tick, setTick] = React.useState(0);
+  const [tab, setTab] = React.useState("flow");
+
+  React.useEffect(() => {
+    const interval = setInterval(() => setTick(t => t + 1), 1500);
+    return () => clearInterval(interval);
+  }, []);
+
+  const activeStage = stages.find(s => s.id === active);
+
+  const handleClick = (id) => {
+    if (id === active) return;
+    setAnimating(true);
+    setTimeout(() => { setActive(id); setAnimating(false); }, 150);
+  };
+
+  let startX = 0;
+  const swipeHandler = {
+    onTouchStart: (e) => { startX = e.touches[0].clientX; },
+    onTouchEnd: (e) => {
+      const diff = startX - e.changedTouches[0].clientX;
+      if (diff > 50 && active < stages.length) handleClick(active + 1);
+      if (diff < -50 && active > 1) handleClick(active - 1);
+    }
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#080808", fontFamily: "'Trebuchet MS', sans-serif", color: "#e0e0e0", maxWidth: 600, margin: "0 auto" }}>
+
+      {/* Header */}
+      <div style={{ background: "linear-gradient(135deg, #111 0%, #1a1a00 100%)", borderBottom: `3px solid ${SHELL_YELLOW}`, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 100 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 34, height: 34, background: SHELL_YELLOW, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: "bold", color: "#000" }}>⚡</div>
+          <div>
+            <div style={{ fontSize: 8, letterSpacing: 3, color: SHELL_YELLOW, textTransform: "uppercase" }}>Shell ECHO</div>
+            <div style={{ fontSize: 13, fontWeight: "bold", color: "#fff" }}>Technical Process</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 5 }}>
+          {["E","C","H","O"].map((l, i) => (
+            <div key={l} style={{ width: 28, height: 28, background: i === tick % 4 ? SHELL_YELLOW : "#1a1a1a", border: `1px solid ${i === tick % 4 ? SHELL_YELLOW : "#333"}`, borderRadius: 5, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: 11, color: i === tick % 4 ? "#000" : "#555", transition: "all 0.5s ease" }}>{l}</div>
+          ))}
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display: "flex", background: "#111", borderBottom: "1px solid #1e1e1e", position: "sticky", top: 65, zIndex: 99 }}>
+        {[{ key: "flow", label: "⚡ System Flow" }, { key: "hydro", label: "🏔️ Hydro Storage" }, { key: "stats", label: "📊 Key Stats" }].map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)} style={{ flex: 1, padding: "12px 4px", background: "none", border: "none", borderBottom: tab === t.key ? `2px solid ${SHELL_YELLOW}` : "2px solid transparent", color: tab === t.key ? SHELL_YELLOW : "#555", fontSize: 11, fontWeight: tab === t.key ? "bold" : "normal", cursor: "pointer", transition: "all 0.2s" }}>{t.label}</button>
+        ))}
+      </div>
+
+      {/* FLOW TAB */}
+      {tab === "flow" && (
+        <div style={{ padding: "16px" }}>
+          <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 16, WebkitOverflowScrolling: "touch" }}>
+            {stages.map(stage => (
+              <div key={stage.id} onClick={() => handleClick(stage.id)} style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 30, border: `1px solid ${active === stage.id ? stage.glow : "#1e1e1e"}`, background: active === stage.id ? stage.color : "#0f0f0f", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0, transition: "all 0.2s", boxShadow: active === stage.id ? `0 0 10px ${stage.glow}33` : "none" }}>
+                <span style={{ fontSize: 12 }}>{stage.emoji}</span>
+                <span style={{ fontSize: 10, fontWeight: "bold", color: active === stage.id ? stage.glow : "#555" }}>{stage.id}. {stage.title}</span>
+              </div>
+            ))}
+          </div>
+
+          <div {...swipeHandler} style={{ background: activeStage.color, border: `2px solid ${activeStage.glow}`, borderRadius: 20, padding: "24px 20px", boxShadow: `0 0 40px ${activeStage.glow}22`, transition: "all 0.3s ease", opacity: animating ? 0 : 1, transform: animating ? "translateY(8px)" : "translateY(0)", userSelect: "none" }}>
+            <div style={{ textAlign: "center", fontSize: 9, color: "#333", marginBottom: 12, letterSpacing: 2 }}>← SWIPE TO NAVIGATE →</div>
+            <div style={{ textAlign: "center", marginBottom: 16 }}>
+              <div style={{ fontSize: 52, filter: `drop-shadow(0 0 16px ${activeStage.glow})`, marginBottom: 8 }}>{activeStage.emoji}</div>
+              <div style={{ fontSize: 9, color: activeStage.glow, letterSpacing: 3, marginBottom: 4 }}>STAGE {activeStage.id} OF {stages.length}</div>
+              <div style={{ fontSize: 20, fontWeight: "bold", color: "#fff", marginBottom: 3 }}>{activeStage.title}</div>
+              <div style={{ fontSize: 12, color: "#666" }}>{activeStage.subtitle}</div>
+            </div>
+            <div style={{ height: 3, background: "#1a1a1a", borderRadius: 2, marginBottom: 16, overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${(activeStage.id / stages.length) * 100}%`, background: activeStage.glow, borderRadius: 2, transition: "width 0.4s ease" }} />
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 16 }}>
+              {activeStage.stats.map((s, i) => (
+                <div key={i} style={{ background: "rgba(0,0,0,0.4)", border: `1px solid ${activeStage.glow}33`, borderRadius: 10, padding: "10px 6px", textAlign: "center" }}>
+                  <div style={{ fontSize: 15, fontWeight: "bold", color: activeStage.glow }}>{s.value}</div>
+                  <div style={{ fontSize: 9, color: "#555", marginTop: 2 }}>{s.label.toUpperCase()}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ background: "rgba(0,0,0,0.4)", borderRadius: 10, padding: "14px 16px", fontSize: 13, color: "#bbb", lineHeight: 1.8, textAlign: "center", marginBottom: activeStage.loop ? 14 : 0 }}>{activeStage.detail}</div>
+            {activeStage.loop && (
+              <div>
+                <div style={{ fontSize: 9, letterSpacing: 2, color: "#00ccaa", marginBottom: 8, textAlign: "center" }}>CLOSED LOOP OUTPUTS</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  {activeStage.loop.map((item, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", background: "rgba(0,0,0,0.3)", borderRadius: 8, border: `1px solid ${item.color}22` }}>
+                      <span style={{ fontSize: 18 }}>{item.icon}</span>
+                      <div>
+                        <div style={{ fontSize: 10, color: item.color, fontWeight: "bold" }}>{item.label}</div>
+                        <div style={{ fontSize: 9, color: "#555" }}>{item.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 20 }}>
+              <button onClick={() => active > 1 && handleClick(active - 1)} style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${active > 1 ? activeStage.glow + "44" : "#1a1a1a"}`, borderRadius: 8, padding: "10px 16px", color: active > 1 ? "#fff" : "#333", cursor: active > 1 ? "pointer" : "default", fontSize: 12 }}>← Prev</button>
+              <div style={{ display: "flex", gap: 5 }}>
+                {stages.map(s => (
+                  <div key={s.id} onClick={() => handleClick(s.id)} style={{ width: active === s.id ? 18 : 6, height: 6, borderRadius: 3, background: active === s.id ? activeStage.glow : "#2a2a2a", cursor: "pointer", transition: "all 0.3s ease" }} />
+                ))}
+              </div>
+              <button onClick={() => active < stages.length && handleClick(active + 1)} style={{ background: active < stages.length ? activeStage.glow : "rgba(255,255,255,0.05)", border: "none", borderRadius: 8, padding: "10px 16px", color: active < stages.length ? "#000" : "#333", cursor: active < stages.length ? "pointer" : "default", fontSize: 12, fontWeight: "bold" }}>Next →</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* HYDRO TAB */}
+      {tab === "hydro" && (
+        <div style={{ padding: "16px" }}>
+          <div style={{ fontSize: 10, letterSpacing: 3, color: "#444", marginBottom: 16, textAlign: "center", textTransform: "uppercase" }}>Buy Low — Store — Sell High</div>
+          {[
+            { icon: "🌙", title: "OVERNIGHT", color: SHELL_YELLOW, value: "$10–20/MWh", sub: "Stored from own plant", desc: "Surplus electricity from the waste plant pumps water uphill into mountain reservoirs while demand is low and electricity is cheap.", tag: "💧 Water pumped uphill using surplus power" },
+            { icon: "🏔️", title: "RESERVOIR", color: "#0099dd", value: "70–85%", sub: "Round-trip efficiency", desc: "Water sits in the mountain reservoir storing energy as gravity. Ready to release in under 60 seconds. Lifespan of 50–100 years. 95% of all global grid storage uses this technology.", tag: "⚡ Responds in under 60 seconds" },
+            { icon: "☀️", title: "MORNING PEAK", color: "#44cc77", value: "$80–150/MWh", sub: "Released at peak demand", desc: "When thousands of Eldorians plug in their EVs every morning, stored water releases downhill through turbines generating electricity at premium peak prices.", tag: "💰 $60–130 profit spread per MWh" },
+          ].map((item, i) => (
+            <div key={i} style={{ background: "#0f0f0f", border: `1px solid ${item.color}33`, borderRadius: 14, padding: "20px", marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+                <div style={{ fontSize: 32 }}>{item.icon}</div>
+                <div>
+                  <div style={{ fontSize: 10, color: item.color, letterSpacing: 2, fontWeight: "bold" }}>{item.title}</div>
+                  <div style={{ fontSize: 22, fontWeight: "bold", color: "#fff" }}>{item.value}</div>
+                  <div style={{ fontSize: 10, color: "#444" }}>{item.sub}</div>
+                </div>
+              </div>
+              <div style={{ fontSize: 12, color: "#888", lineHeight: 1.7, marginBottom: 10 }}>{item.desc}</div>
+              <div style={{ background: `${item.color}11`, border: `1px solid ${item.color}33`, borderRadius: 6, padding: "8px 12px", fontSize: 11, color: item.color }}>{item.tag}</div>
+            </div>
+          ))}
+          <div style={{ background: "#0f0f0f", border: "1px solid #1e1e1e", borderRadius: 14, padding: 20 }}>
+            <div style={{ fontSize: 10, letterSpacing: 2, color: "#444", marginBottom: 14, textAlign: "center" }}>THE PROFIT SPREAD</div>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <div style={{ textAlign: "center", flex: 1 }}>
+                <div style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>BUY AT</div>
+                <div style={{ fontSize: 20, fontWeight: "bold", color: SHELL_YELLOW }}>$10–20</div>
+                <div style={{ fontSize: 9, color: "#444" }}>per MWh overnight</div>
+              </div>
+              <div style={{ fontSize: 20, color: "#44cc77", padding: "0 6px" }}>→</div>
+              <div style={{ textAlign: "center", flex: 1 }}>
+                <div style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>SELL AT</div>
+                <div style={{ fontSize: 20, fontWeight: "bold", color: "#44cc77" }}>$80–150</div>
+                <div style={{ fontSize: 9, color: "#444" }}>per MWh at peak</div>
+              </div>
+              <div style={{ fontSize: 20, color: "#44cc77", padding: "0 6px" }}>=</div>
+              <div style={{ textAlign: "center", flex: 1, background: "#001a0a", borderRadius: 10, padding: "10px 6px", border: "1px solid #003300" }}>
+                <div style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>PROFIT</div>
+                <div style={{ fontSize: 20, fontWeight: "bold", color: "#44cc77" }}>$60–130</div>
+                <div style={{ fontSize: 9, color: "#44cc77" }}>per MWh</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* STATS TAB */}
+      {tab === "stats" && (
+        <div style={{ padding: "16px" }}>
+          <div style={{ fontSize: 10, letterSpacing: 3, color: "#444", marginBottom: 16, textAlign: "center", textTransform: "uppercase" }}>Shell ECHO vs The Competition</div>
+          {[
+            { label: "Electricity Cost", echo: "$10–30/MWh", competitor: "$120–180/MWh", win: "83% cheaper", color: "#44cc77" },
+            { label: "Fuel Cost", echo: "$0 — paid to collect", competitor: "Market rate", win: "Free fuel", color: "#FBCE07" },
+            { label: "Charge Time 10–80%", echo: "9–12 minutes", competitor: "25–35 minutes", win: "3x faster", color: "#4488ff" },
+            { label: "Price Per Charge", echo: "$8–15", competitor: "$25–40", win: "50% cheaper", color: "#00ccaa" },
+            { label: "Profit Margin", echo: "75–85%", competitor: "8–15%", win: "7x higher", color: "#ff6600" },
+            { label: "Grid Dependency", echo: "Zero", competitor: "100%", win: "Full independence", color: "#44cc77" },
+            { label: "Carbon Position", echo: "Earns credits", competitor: "Pays taxes", win: "Complete reversal", color: "#00ccaa" },
+            { label: "Energy Efficiency", echo: "Up to 80%", competitor: "20–25%", win: "4x more efficient", color: "#FBCE07" },
+          ].map((row, i) => (
+            <div key={i} style={{ background: "#0f0f0f", border: "1px solid #1e1e1e", borderRadius: 12, padding: "14px 16px", marginBottom: 8 }}>
+              <div style={{ fontSize: 10, color: "#555", letterSpacing: 1, marginBottom: 8 }}>{row.label.toUpperCase()}</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+                <div style={{ background: "#001a0a", border: "1px solid #003300", borderRadius: 8, padding: "8px 10px", textAlign: "center" }}>
+                  <div style={{ fontSize: 9, color: "#44cc77", marginBottom: 3 }}>SHELL ECHO</div>
+                  <div style={{ fontSize: 13, fontWeight: "bold", color: "#fff" }}>{row.echo}</div>
+                </div>
+                <div style={{ background: "#1a0a0a", border: "1px solid #330000", borderRadius: 8, padding: "8px 10px", textAlign: "center" }}>
+                  <div style={{ fontSize: 9, color: "#cc4444", marginBottom: 3 }}>COMPETITORS</div>
+                  <div style={{ fontSize: 13, fontWeight: "bold", color: "#888" }}>{row.competitor}</div>
+                </div>
+              </div>
+              <div style={{ background: `${row.color}11`, border: `1px solid ${row.color}33`, borderRadius: 6, padding: "6px 10px", textAlign: "center", fontSize: 11, fontWeight: "bold", color: row.color }}>✓ {row.win}</div>
+            </div>
+          ))}
+          <div style={{ marginTop: 8, fontSize: 9, color: "#2a2a2a", textAlign: "center" }}>Sources: U.S. DOE · IHA · Shell Thermal Fluid · IEA Global EV Outlook 2024</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
